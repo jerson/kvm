@@ -2,7 +2,25 @@ const toBoolean = (value: string | undefined) => {
   if (!value) return false;
   return ["1", "true", "yes", "y"].includes(value.toLowerCase().trim());
 };
-export const CLOUD_API = import.meta.env.VITE_CLOUD_API;
+
+declare global {
+  interface Window {
+    __JETKVM_RUNTIME_CONFIG__?: {
+      CLOUD_API?: string;
+      CLOUD_AUTH_PROVIDERS?: string;
+    };
+  }
+}
+
+const runtimeConfig = window.__JETKVM_RUNTIME_CONFIG__ || {};
+
+export const CLOUD_API = runtimeConfig.CLOUD_API || import.meta.env.VITE_CLOUD_API;
+export const CLOUD_AUTH_PROVIDERS = (
+  runtimeConfig.CLOUD_AUTH_PROVIDERS || import.meta.env.VITE_CLOUD_AUTH_PROVIDERS || "google"
+)
+  .split(",")
+  .map((provider: string) => provider.trim().toLowerCase())
+  .filter(Boolean);
 
 export const CLOUD_BACKWARDS_COMPATIBLE_VERSION =
   import.meta.env.VITE_CLOUD_BACKWARDS_COMPATIBLE_VERSION || "0.5.0";
