@@ -99,7 +99,7 @@ const cloudLoader = async (params: Params<string>): Promise<CloudLoaderResp> => 
   }
 
   const { device } = (await deviceResp.json()) as {
-    device: { id: string; name: string; user: { googleId: string } };
+    device: { id: string; name: string; user: { email: string } };
   };
 
   return { user, iceConfig, deviceName: device.name || device.id } as CloudLoaderResp;

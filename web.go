@@ -40,10 +40,13 @@ import (
 var staticFiles embed.FS
 
 type WebRTCSessionRequest struct {
-	Sd         string   `json:"sd"`
-	OidcGoogle string   `json:"OidcGoogle,omitempty"`
-	IP         string   `json:"ip,omitempty"`
-	ICEServers []string `json:"iceServers,omitempty"`
+	Sd            string   `json:"sd"`
+	OidcGoogle    string   `json:"OidcGoogle,omitempty"`
+	CloudIdentity string   `json:"CloudIdentity,omitempty"`
+	AuthProvider  string   `json:"AuthProvider,omitempty"`
+	ProviderToken string   `json:"ProviderToken,omitempty"`
+	IP            string   `json:"ip,omitempty"`
+	ICEServers    []string `json:"iceServers,omitempty"`
 }
 
 type SetPasswordRequest struct {
@@ -462,6 +465,9 @@ func handleWebRTCSignalWsMessages(
 
 			if req.OidcGoogle != "" {
 				l.Info().Str("oidcGoogle", req.OidcGoogle).Msg("new session request with OIDC Google")
+			}
+			if req.CloudIdentity != "" {
+				l.Info().Str("cloudIdentity", req.CloudIdentity).Msg("new session request with cloud identity")
 			}
 
 			metricConnectionSessionRequestCount.WithLabelValues(sourceType, source).Inc()
@@ -989,6 +995,7 @@ func handleDiagnosticsDownload(c *gin.Context) {
 		redactedConfig.CloudToken = ""
 		redactedConfig.LocalAuthToken = ""
 		redactedConfig.HashedPassword = ""
+		redactedConfig.CloudIdentity = ""
 		redactedConfig.GoogleIdentity = ""
 		if configData, err := json.MarshalIndent(redactedConfig, "", "  "); err == nil {
 			if err := addBytesToZip(zw, "config.json", configData); err != nil {

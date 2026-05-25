@@ -14,10 +14,10 @@ export default function LoginRoute() {
         showCounter={true}
         title={m.auth_connect_to_cloud()}
         description={m.auth_connect_to_cloud_description()}
-        action={m.auth_connect_to_cloud_action()}
         // Header CTA
         cta={m.auth_header_cta_dont_have_account()}
         ctaHref={`/signup?${sq.toString()}`}
+        mode="login"
       />
     );
   }
@@ -26,10 +26,10 @@ export default function LoginRoute() {
     <AuthLayout
       title={m.auth_login()}
       description={m.auth_login_description()}
-      action={m.auth_login_action()}
       // Header CTA
       cta={m.auth_header_cta_new_to_jetkvm()}
       ctaHref={`/signup?${sq.toString()}`}
+      mode="login"
     />
   );
 }

@@ -42,6 +42,20 @@ export const GoogleIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+export const PocketBaseIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={clsx(className, "shrink-0")}
+  >
+    <path
+      d="M4 7.5C4 5.567 5.567 4 7.5 4H12v7.5H4V7.5ZM13.5 4H16.5C18.433 4 20 5.567 20 7.5V11H13.5V4ZM4 13H12V20H7.5C5.567 20 4 18.433 4 16.5V13ZM13.5 13H20V16.5C20 18.433 18.433 20 16.5 20H13.5V13Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export const UbuntuIcon = ({ className }: { className?: string }) => (
   <svg
     className={clsx(className, "shrink-0")}

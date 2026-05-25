@@ -14,9 +14,9 @@ export default function SignupRoute() {
         showCounter={true}
         title={m.auth_connect_to_cloud()}
         description={m.auth_connect_to_cloud_description()}
-        action={m.auth_signup_connect_to_cloud_action()}
         cta={m.auth_header_cta_already_have_account()}
         ctaHref={`/login?${sq.toString()}`}
+        mode="signup"
       />
     );
   }
@@ -25,10 +25,10 @@ export default function SignupRoute() {
     <AuthLayout
       title={m.auth_signup_create_account()}
       description={m.auth_signup_create_account_description()}
-      action={m.auth_signup_create_account_action()}
       // Header CTA
       cta={m.auth_header_cta_already_have_account()}
       ctaHref={`/login?${sq.toString()}`}
+      mode="signup"
     />
   );
 }
