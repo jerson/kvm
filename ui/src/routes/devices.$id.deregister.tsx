@@ -18,12 +18,15 @@ import { CLOUD_API } from "@/ui.config";
 import { m } from "@localizations/messages.js";
 
 interface LoaderData {
-  device: { id: string; name: string; user: { googleId: string } };
+  device: { id: string; name: string; user: { email: string } };
   user: User;
 }
 
 const action: ActionFunction = async ({ request }: ActionFunctionArgs) => {
-  const { deviceId } = Object.fromEntries(await request.formData());
+  const deviceId = (await request.formData()).get("deviceId")?.toString();
+  if (!deviceId) {
+    return { message: m.deregister_error({ status: "Missing device id" }) };
+  }
 
   try {
     const res = await fetch(`${CLOUD_API}/devices/${deviceId}`, {
@@ -57,7 +60,7 @@ const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => {
     });
 
     const { device } = (await res.json()) as {
-      device: { id: string; name: string; user: { googleId: string } };
+      device: { id: string; name: string; user: { email: string } };
     };
 
     return { device, user };

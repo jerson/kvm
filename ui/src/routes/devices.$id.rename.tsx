@@ -53,7 +53,7 @@ const loader: LoaderFunction = async ({ params }: LoaderFunctionArgs) => {
     });
 
     const { device } = (await res.json()) as {
-      device: { id: string; name: string; user: { googleId: string } };
+      device: { id: string; name: string; user: { email: string } };
     };
 
     return { device, user };
