@@ -80,6 +80,6 @@ export default defineConfig(({ mode, command }) => {
           }
         : undefined,
     },
-    base: onDevice && command === "build" ? "/static" : "/",
+    base: onDevice && command === "build" ? "/static/" : "/",
   };
 });
