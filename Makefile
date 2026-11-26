@@ -429,3 +429,36 @@ bump-version:
 		git commit -m "Bump version to $$next_ver" && \
 		git push && \
 		echo "✓ Bumped to $$next_ver"
+
+# Cloud UI container images. These targets leave the device firmware workflow
+# and its default make target unchanged.
+IMAGE_REPO_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+DOCKER ?= docker
+REGISTRY ?= ghcr.io/your-account
+TAG ?= latest
+PLATFORM ?= linux/amd64
+UI_IMAGE ?= $(REGISTRY)/kvm-cloud-ui
+IMAGE_ARGS ?=
+
+.PHONY: images-help images-build images-push
+
+images-help:
+	@printf '%s\n' \
+	  'make images-build  Build and load the cloud UI image locally' \
+	  'make images-push   Build and push the cloud UI image' \
+	  'Defaults: REGISTRY=ghcr.io/your-account TAG=latest PLATFORM=linux/amd64' \
+	  'Example: make images-push TAG=oidc-v1 IMAGE_ARGS="--pull"' \
+	  'Preview: make -n images-push' \
+	  'Push requires docker login ghcr.io. Local --load builds need a single PLATFORM.'
+
+images-build:
+	$(DOCKER) buildx build --platform "$(PLATFORM)" \
+	  --file "$(IMAGE_REPO_DIR)/ui/Dockerfile.cloud" \
+	  --tag "$(UI_IMAGE):$(TAG)" $(IMAGE_ARGS) \
+	  --load "$(IMAGE_REPO_DIR)/ui"
+
+images-push:
+	$(DOCKER) buildx build --platform "$(PLATFORM)" \
+	  --file "$(IMAGE_REPO_DIR)/ui/Dockerfile.cloud" \
+	  --tag "$(UI_IMAGE):$(TAG)" $(IMAGE_ARGS) \
+	  --push "$(IMAGE_REPO_DIR)/ui"

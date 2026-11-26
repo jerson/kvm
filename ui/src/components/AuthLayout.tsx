@@ -1,14 +1,14 @@
 import { useLocation, useNavigation, useSearchParams } from "react-router";
 
 import { Button, LinkButton } from "@components/Button";
-import { GoogleIcon, PocketBaseIcon } from "@components/Icons";
+import { GoogleIcon } from "@components/Icons";
 import SimpleNavbar from "@components/SimpleNavbar";
 import Container from "@components/Container";
 import Fieldset from "@components/Fieldset";
 import GridBackground from "@components/GridBackground";
 import StepCounter from "@components/StepCounter";
-import InputField from "@components/InputField";
-import { CLOUD_API, CLOUD_AUTH_PROVIDERS } from "@/ui.config";
+import { CLOUD_API } from "@/ui.config";
+import { OIDCSignIn, useAuthProviders } from "@components/OIDCSignIn";
 
 interface AuthLayoutProps {
   title: string;
@@ -33,8 +33,8 @@ export default function AuthLayout({
   const returnTo = sq.get("returnTo") || location.state?.returnTo;
   const deviceId = sq.get("deviceId") || location.state?.deviceId;
   const navigation = useNavigation();
-  const showGoogle = CLOUD_AUTH_PROVIDERS.includes("google");
-  const showPocketBase = CLOUD_AUTH_PROVIDERS.includes("pocketbase");
+  const { config, error, retry } = useAuthProviders();
+  const showGoogle = config?.providers.includes("google");
 
   return (
     <>
@@ -64,6 +64,30 @@ export default function AuthLayout({
 
               <Fieldset className="space-y-12">
                 <div className="mx-auto max-w-sm space-y-4">
+                  {!config && !error ? (
+                    <p role="status" className="text-sm text-slate-500">
+                      Loading sign-in options…
+                    </p>
+                  ) : null}
+                  {error ? (
+                    <div role="alert" className="space-y-2 text-sm text-red-600 dark:text-red-400">
+                      <p>Could not load sign-in options.</p>
+                      <Button
+                        type="button"
+                        theme="light"
+                        size="SM"
+                        text="Try again"
+                        onClick={retry}
+                        data-testid="auth-providers-retry"
+                      />
+                    </div>
+                  ) : null}
+                  <OIDCSignIn
+                    providers={config?.oidc ?? []}
+                    deviceId={deviceId}
+                    returnTo={returnTo}
+                    mode={mode}
+                  />
                   {showGoogle ? (
                     <form action={`${CLOUD_API}/oidc/google`} method="POST">
                       {deviceId ? <input type="hidden" name="deviceId" value={deviceId} /> : null}
@@ -81,46 +105,6 @@ export default function AuthLayout({
                           navigation.formMethod?.toLowerCase() === "post" &&
                           navigation.formAction?.includes("/oidc/google")
                         }
-                      />
-                    </form>
-                  ) : null}
-
-                  {showGoogle && showPocketBase ? (
-                    <div className="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">
-                      <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                      <span>or</span>
-                      <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                    </div>
-                  ) : null}
-
-                  {showPocketBase ? (
-                    <form action={`${CLOUD_API}/auth/pocketbase`} method="POST" className="space-y-4">
-                      {deviceId ? <input type="hidden" name="deviceId" value={deviceId} /> : null}
-                      {returnTo ? <input type="hidden" name="returnTo" value={returnTo} /> : null}
-                      <InputField
-                        size="LG"
-                        name="email"
-                        type="email"
-                        autoComplete="email"
-                        placeholder="Email"
-                        required
-                      />
-                      <InputField
-                        size="LG"
-                        name="password"
-                        type="password"
-                        autoComplete="current-password"
-                        placeholder="Password"
-                        required
-                      />
-                      <Button
-                        size="LG"
-                        theme="light"
-                        fullWidth
-                        text="Sign in with PocketBase"
-                        LeadingIcon={PocketBaseIcon}
-                        textAlign="center"
-                        type="submit"
                       />
                     </form>
                   ) : null}

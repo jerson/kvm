@@ -1,0 +1,7 @@
+Authentik logo
+Source: https://github.com/simple-icons/simple-icons/blob/develop/icons/authentik.svg
+Simple Icons assets are available under CC0-1.0.
+https://github.com/simple-icons/simple-icons/blob/develop/LICENSE.md
+
+Copied from the Mycalidraw provider icon set. Provider names and logos are
+trademarks of their respective owners. Google uses JetKVM's existing GoogleIcon.
