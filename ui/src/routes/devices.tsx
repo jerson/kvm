@@ -4,6 +4,7 @@ import { ArrowRightIcon } from "@heroicons/react/16/solid";
 import { useInterval } from "usehooks-ts";
 
 import { User } from "@hooks/stores";
+import { useLogoutTransition } from "@hooks/logout-transition";
 import DashboardNavbar from "@components/Header";
 import EmptyCard from "@components/EmptyCard";
 import KvmCard from "@components/KvmCard";
@@ -43,7 +44,13 @@ const loader: LoaderFunction = async () => {
 export default function DevicesRoute() {
   const { devices, user } = useLoaderData() as LoaderData;
   const revalidate = useRevalidator();
-  useInterval(revalidate.revalidate, 4000);
+  const logoutPending = useLogoutTransition(state => state.pending);
+  useInterval(
+    () => {
+      if (!useLogoutTransition.getState().pending) revalidate.revalidate();
+    },
+    logoutPending ? null : 4000,
+  );
   return (
     <div className="relative h-full">
       <div className="grid h-full grid-rows-(--grid-headerBody) select-none">

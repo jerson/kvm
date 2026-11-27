@@ -7,6 +7,7 @@ import { LuMonitorSmartphone } from "react-icons/lu";
 import LogoBlueIcon from "@assets/logo-blue.svg";
 import LogoWhiteIcon from "@assets/logo-white.svg";
 import { useHidStore, useRTCStore, useUserStore } from "@hooks/stores";
+import { useLogoutTransition } from "@hooks/logout-transition";
 import Card from "@components/Card";
 import Container from "@components/Container";
 import { LinkButton } from "@components/Button";
@@ -38,14 +39,16 @@ export default function DashboardNavbar({
   kvmName,
   hostname,
 }: NavbarProps) {
-  const peerConnectionState = useRTCStore((state) => state.peerConnectionState);
-  const setUser = useUserStore((state) => state.setUser);
+  const peerConnectionState = useRTCStore(state => state.peerConnectionState);
+  const setUser = useUserStore(state => state.setUser);
   const [logoutBusy, setLogoutBusy] = useState(false);
   const navigate = useNavigate();
   const onLogout = useCallback(
     async (providerLogout = false) => {
       if (logoutBusy) return;
       setLogoutBusy(true);
+      useLogoutTransition.getState().setPending(true);
+      let leavingForProvider = false;
       try {
         const logoutUrl = isOnDevice ? `${DEVICE_API}/auth/logout` : `${CLOUD_API}/logout`;
         const res = await api.POST(
@@ -53,7 +56,6 @@ export default function DashboardNavbar({
           !isOnDevice && providerLogout ? { providerLogout: true } : undefined,
         );
         if (!res.ok) return;
-        setUser(null);
         if (!isOnDevice && providerLogout) {
           const body = await res.json().catch(() => ({}));
           if (typeof body.redirectTo === "string") {
@@ -64,7 +66,11 @@ export default function DashboardNavbar({
                 !target.username &&
                 !target.password
               ) {
-                window.location.assign(target.href);
+                // Keep client auth stable until the full-document navigation.
+                // Clearing it first can trigger a competing local auth redirect.
+                // The server has already revoked this session.
+                window.location.replace(target.href);
+                leavingForProvider = true;
                 return;
               }
             } catch {
@@ -73,9 +79,13 @@ export default function DashboardNavbar({
           }
         }
         // Local logout stays local; device logout keeps its existing contract.
+        setUser(null);
         navigate("/");
       } finally {
-        setLogoutBusy(false);
+        if (!leavingForProvider) {
+          useLogoutTransition.getState().setPending(false);
+          setLogoutBusy(false);
+        }
       }
     },
     [navigate, setUser, logoutBusy],
@@ -138,7 +148,7 @@ export default function DashboardNavbar({
                         <MenuButton as="div" className="h-full">
                           <Button
                             aria-label={userEmail || m.log_out()}
-                            className="flex min-h-11 min-w-11 h-full items-center gap-x-3 rounded-md border border-slate-800/20 bg-white px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                            className="flex h-full min-h-11 min-w-11 items-center gap-x-3 rounded-md border border-slate-800/20 bg-white px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
                           >
                             {picture ? (
                               <img
