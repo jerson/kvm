@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Войти",
     "log_out": "Выйти",
+    "log_out_provider": "Выйти из {provider}",
     "logged_in_as": "Вошли как",
     "login_enter_password": "Введите ваш пароль",
     "login_enter_password_description": "Введите ваш пароль для доступа к JetKVM.",

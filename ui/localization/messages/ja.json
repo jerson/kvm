@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "ログイン",
     "log_out": "ログアウト",
+    "log_out_provider": "{provider} からログアウト",
     "logged_in_as": "ログイン中: ",
     "login_enter_password": "パスワードを入力してください",
     "login_enter_password_description": "JetKVMにアクセスするにはパスワードを入力してください。",

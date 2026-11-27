@@ -80,6 +80,7 @@ export default function DevicesIdDeregister() {
         isLoggedIn={!!user}
         primaryLinks={[{ title: m.deregister_cloud_devices(), to: "/devices" }]}
         userEmail={user?.email}
+        logoutProvider={user?.oidcLogoutProvider}
         picture={user?.picture}
         kvmName={device?.name}
       />

@@ -758,6 +758,7 @@ export default function KvmIdRoute() {
               showConnectionStatus={true}
               isLoggedIn={authMode === "password" || !!user}
               userEmail={user?.email}
+              logoutProvider={user?.oidcLogoutProvider}
               picture={user?.picture}
               kvmName={deviceName ?? m.jetkvm_device()}
               hostname={displayHostname}

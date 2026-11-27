@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Giriş Yap",
     "log_out": "Çıkış yap",
+    "log_out_provider": "{provider} oturumunu kapat",
     "logged_in_as": "Şu kullanıcı olarak giriş yapıldı",
     "login_enter_password": "Şifrenizi girin",
     "login_enter_password_description": "JetKVM'nize erişmek için şifrenizi girin.",

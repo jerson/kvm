@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Log ind",
     "log_out": "Log ud",
+    "log_out_provider": "Log ud af {provider}",
     "logged_in_as": "Logget ind som",
     "login_enter_password": "Indtast din adgangskode",
     "login_enter_password_description": "Indtast din adgangskode for at få adgang til din JetKVM.",

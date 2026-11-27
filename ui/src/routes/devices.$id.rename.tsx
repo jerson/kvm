@@ -73,6 +73,7 @@ export default function DeviceIdRename() {
         isLoggedIn={!!user}
         primaryLinks={[{ title: "Cloud Devices", to: "/devices" }]}
         userEmail={user?.email}
+        logoutProvider={user?.oidcLogoutProvider}
         picture={user?.picture}
         kvmName={device?.name}
       />

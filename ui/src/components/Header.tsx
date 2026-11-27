@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router";
 import { ArrowLeftEndOnRectangleIcon, ChevronDownIcon } from "@heroicons/react/16/solid";
 import { Button, Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
@@ -21,6 +21,7 @@ interface NavbarProps {
   isLoggedIn: boolean;
   primaryLinks?: { title: string; to: string }[];
   userEmail?: string;
+  logoutProvider?: string;
   showConnectionStatus?: boolean;
   picture?: string;
   kvmName?: string;
@@ -32,22 +33,53 @@ export default function DashboardNavbar({
   isLoggedIn,
   showConnectionStatus,
   userEmail,
+  logoutProvider,
   picture,
   kvmName,
   hostname,
 }: NavbarProps) {
-  const peerConnectionState = useRTCStore(state => state.peerConnectionState);
-  const setUser = useUserStore(state => state.setUser);
+  const peerConnectionState = useRTCStore((state) => state.peerConnectionState);
+  const setUser = useUserStore((state) => state.setUser);
+  const [logoutBusy, setLogoutBusy] = useState(false);
   const navigate = useNavigate();
-  const onLogout = useCallback(async () => {
-    const logoutUrl = isOnDevice ? `${DEVICE_API}/auth/logout` : `${CLOUD_API}/logout`;
-    const res = await api.POST(logoutUrl);
-    if (!res.ok) return;
-
-    setUser(null);
-    // The root route will redirect to appropriate login page, be it the local one or the cloud one
-    navigate("/");
-  }, [navigate, setUser]);
+  const onLogout = useCallback(
+    async (providerLogout = false) => {
+      if (logoutBusy) return;
+      setLogoutBusy(true);
+      try {
+        const logoutUrl = isOnDevice ? `${DEVICE_API}/auth/logout` : `${CLOUD_API}/logout`;
+        const res = await api.POST(
+          logoutUrl,
+          !isOnDevice && providerLogout ? { providerLogout: true } : undefined,
+        );
+        if (!res.ok) return;
+        setUser(null);
+        if (!isOnDevice && providerLogout) {
+          const body = await res.json().catch(() => ({}));
+          if (typeof body.redirectTo === "string") {
+            try {
+              const target = new URL(body.redirectTo);
+              if (
+                ["https:", "http:"].includes(target.protocol) &&
+                !target.username &&
+                !target.password
+              ) {
+                window.location.assign(target.href);
+                return;
+              }
+            } catch {
+              /* The local session is already cleared; finish locally. */
+            }
+          }
+        }
+        // Local logout stays local; device logout keeps its existing contract.
+        navigate("/");
+      } finally {
+        setLogoutBusy(false);
+      }
+    },
+    [navigate, setUser, logoutBusy],
+  );
 
   const { usbState } = useHidStore();
 
@@ -59,7 +91,7 @@ export default function DashboardNavbar({
     <div className="w-full border-b border-b-slate-800/20 bg-white select-none dark:border-b-slate-300/20 dark:bg-slate-900">
       <Container>
         <div className="flex h-14 items-center justify-between">
-          <div className="flex shrink-0 items-center gap-x-8">
+          <div className="flex shrink-0 items-center gap-x-3 sm:gap-x-8">
             <div className="inline-block shrink-0">
               <img src={LogoBlueIcon} alt="" className="h-6 dark:hidden" />
               <img src={LogoWhiteIcon} alt="" className="hidden h-6 dark:block" />
@@ -87,16 +119,16 @@ export default function DashboardNavbar({
           </div>
           <div className="flex w-full items-center justify-end gap-x-2">
             <div className="flex shrink-0 items-center space-x-4">
-              <div className="hidden items-stretch gap-x-2 md:flex">
+              <div className="flex items-stretch gap-x-2">
                 {showConnectionStatus && (
-                  <>
+                  <div className="hidden items-stretch gap-x-2 md:flex">
                     <div className="w-[159px]">
                       <PeerConnectionStatusCard state={peerConnectionState} title={kvmName} />
                     </div>
                     <div className="hidden w-[159px] md:block">
                       <USBStateStatus state={usbState} peerConnectionState={peerConnectionState} />
                     </div>
-                  </>
+                  </div>
                 )}
                 {isLoggedIn ? (
                   <>
@@ -104,7 +136,10 @@ export default function DashboardNavbar({
                     <div className="relative inline-block text-left">
                       <Menu>
                         <MenuButton as="div" className="h-full">
-                          <Button className="flex h-full items-center gap-x-3 rounded-md border border-slate-800/20 bg-white px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800 dark:text-white">
+                          <Button
+                            aria-label={userEmail || m.log_out()}
+                            className="flex min-h-11 min-w-11 h-full items-center gap-x-3 rounded-md border border-slate-800/20 bg-white px-2 py-1.5 dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+                          >
                             {picture ? (
                               <img
                                 src={picture}
@@ -112,7 +147,7 @@ export default function DashboardNavbar({
                                 className="size-6 rounded-full border-2 border-transparent transition-colors group-hover:border-blue-700"
                               />
                             ) : userEmail ? (
-                              <span className="max-w-[200px] truncate font-display text-sm/6 font-semibold">
+                              <span className="hidden max-w-[200px] truncate font-display text-sm/6 font-semibold md:inline">
                                 {userEmail}
                               </span>
                             ) : null}
@@ -138,11 +173,29 @@ export default function DashboardNavbar({
                                   </div>
                                 </div>
                               )}
-                              <div className="space-y-1 p-1 dark:text-white" onClick={onLogout}>
-                                <button className="group flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700">
+                              <div className="space-y-1 p-1 dark:text-white">
+                                <button
+                                  disabled={logoutBusy}
+                                  onClick={() => void onLogout()}
+                                  className="group flex min-h-11 w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                                >
                                   <ArrowLeftEndOnRectangleIcon className="size-4" />
                                   <div className="font-display">{m.log_out()}</div>
                                 </button>
+                                {!isOnDevice && logoutProvider && (
+                                  <button
+                                    disabled={logoutBusy}
+                                    onClick={() => void onLogout(true)}
+                                    className="group flex min-h-11 w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                                  >
+                                    <ArrowLeftEndOnRectangleIcon className="size-4 shrink-0" />
+                                    <span className="font-display">
+                                      {m.log_out_provider({
+                                        provider: logoutProvider,
+                                      })}
+                                    </span>
+                                  </button>
+                                )}
                               </div>
                             </Card>
                           </MenuItem>

@@ -488,6 +488,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Mewngofnodi",
     "log_out": "Allgofnodi",
+    "log_out_provider": "Allgofnodi o {provider}",
     "logged_in_as": "Wedi mewngofnodi fel",
     "login_enter_password": "Nodwch eich cyfrinair",
     "login_enter_password_description": "Nodwch eich cyfrinair i gyrchu eich JetKVM.",

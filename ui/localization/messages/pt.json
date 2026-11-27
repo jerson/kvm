@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Entrar",
     "log_out": "Sair",
+    "log_out_provider": "Terminar sessão em {provider}",
     "logged_in_as": "Logado como",
     "login_enter_password": "Digite sua senha",
     "login_enter_password_description": "Digite sua senha para acessar seu JetKVM.",

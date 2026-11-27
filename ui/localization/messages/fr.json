@@ -493,6 +493,7 @@
     "locale_zh_tw": "中文 (繁體)",
     "log_in": "Se connecter",
     "log_out": "Se déconnecter",
+    "log_out_provider": "Se déconnecter de {provider}",
     "logged_in_as": "Connecté en tant que",
     "login_enter_password": "Entrez votre mot de passe",
     "login_enter_password_description": "Entrez votre mot de passe pour accéder à votre JetKVM.",

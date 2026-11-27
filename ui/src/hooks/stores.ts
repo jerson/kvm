@@ -44,6 +44,7 @@ export type AvailableTerminalTypes = "kvm" | "serial" | "cdcacm" | "none";
 
 export interface User {
   sub: string;
+  oidcLogoutProvider?: string;
   email?: string;
   picture?: string;
 }
